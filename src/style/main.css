@@ -1,0 +1,6 @@
+html {
+    box-sizing: border-box;
+}
+body {
+    background: url('./../img/bg.png') no-repeat 100% 100%;
+}
