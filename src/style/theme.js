@@ -19,6 +19,9 @@ const theme = {
         },
         infoPanel:{
             background: '#ffffff',
+        },
+        comicsPreview:{
+            dark: '#030303',
         }
     }
 };

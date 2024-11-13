@@ -7,8 +7,16 @@ const Title = styled.h2`
     font-size: ${({ $size = '22px'}) => $size};
     text-transform: ${({ $transform = 'uppercase' }) => $transform};
     margin: ${({ $margin }) => $margin};
-    .span-dark{
-        color: ${({ theme }) => theme.color.text.dark};
+    width: ${({ $width = 'none' }) => $width};
+    opacity: ${({ $opacity = '100%' }) => $opacity};
+
+    // .span-dark{
+    //     color: ${({ theme }) => theme.color.text.dark};
+    // }
+    @media (max-width: 1300px) {
+        font-size: ${({ $size = '22px' }) => {
+            return `calc(${parseInt($size, 10)}px * 0.8)`; 
+        }};
     }
 `;
 

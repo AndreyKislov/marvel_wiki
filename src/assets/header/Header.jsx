@@ -1,7 +1,8 @@
-import {styled} from 'styled-components';
+import {styled, ThemeContext} from 'styled-components';
 import {Col, Container, Row} from 'react-bootstrap';
 import Title from '../titles/Title.jsx';
-import theme from '../../style/theme.js';
+import {useContext} from 'react';
+import PropTypes from 'prop-types';
 
 const Link = styled(Title)`
     cursor: pointer;
@@ -14,23 +15,39 @@ const Nav = styled.nav`
     margin-left: 58px;
 `;
 
-export default function Header() {
+export default function Header({active}) {
+    const {color} = useContext(ThemeContext);
+    const colors = chooseColors(active);
+
+    function chooseColors(active) {
+        const colors = {
+            characters: color.text.dark,
+            comics: color.text.dark,
+        };
+        if(active === 'comics'){
+            colors.comics = color.text.primary;
+        }else if(active === 'characters'){
+            colors.characters = color.text.primary;
+        }
+        return colors;
+    }
     return (
         <StyledHeader>
             <Container>
                 <Row>
                     <Col md={6}>
-                        <Title $size='28px' $transform='none' $color={theme.color.text.primary}>
+                        <Title $size='28px' $transform='none' $color={color.text.primary}>
                             Marvel <span className='span-dark'>information portal</span>
                         </Title>
                     </Col>
                     <Col md={{span: 3, offset: 3}}>
                         <Nav>
-                            <Link as='a' href='#' $size='28px' $transform='none'
-                                  $color={theme.color.text.primary}>Character</Link>
+                            <Link to='/characters' as='a' $size='28px' $transform='none'
+                                  $color={colors.characters}>Character</Link>
                             <Title $size='28px' $transform='none'
-                                   $color={theme.color.text.dark}>&nbsp;/&nbsp;</Title>
-                            <Link as='a' href='#' $size='28px' $transform='none' $color={theme.color.text.dark}>Comics</Link>
+                                   $color={color.text.dark}>&nbsp;/&nbsp;</Title>
+                            <Link to='/comics' as='a' $size='28px' $transform='none'
+                                  $color={colors.comics}>Comics</Link>
                         </Nav>
                     </Col>
                 </Row>
@@ -38,3 +55,7 @@ export default function Header() {
         </StyledHeader>  
     );
 }
+
+Header.propTypes = {
+    active: PropTypes.string,
+};

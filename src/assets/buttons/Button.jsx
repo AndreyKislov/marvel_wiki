@@ -14,5 +14,11 @@ export const Button = styled.button`
     width: ${({$width}) => $width || 'none'};
 `;
 
+export const LoadMoreButton = styled(Button)`
+    width: 100%;
+    margin-left: 53px;
+    clip-path: polygon(100% 60%, 92.87% 100%, 0% 100%, 0% 40%, 7.13% 0%, 100% 0%);
+`;
+
 export default Button;
 
