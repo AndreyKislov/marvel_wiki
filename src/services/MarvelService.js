@@ -18,7 +18,6 @@ export default class MarvelService {
 
     _getResource = async (url) => {
         let response = await fetch(url);
-
         if (!response.ok) {
             throw new FetchError(`Could not fetch resource ${url}`, response.status);
         }
@@ -29,8 +28,7 @@ export default class MarvelService {
         return md5(ts + privateKey + publicKey);
     };
 
-    _characterTransform = (char) => {
-        const {id, name, description, thumbnail, urls} = char.data.results[0];
+    _characterTransform = ({id, name, description, thumbnail, urls}) => {
         return {
             id: id,
             name: name,
@@ -40,21 +38,48 @@ export default class MarvelService {
         };
 
         function cutString(str) {
-            if (str.length > 230) {
+            const lenStr = 100;
+            if (str.length < lenStr || str.length === 0) {
                 return str;
             } else {
-                return str.slice(0, 230) + '...';
+                return str.slice(0, lenStr) + '...';
             }
         }
     };
 
-    getCharacter = async (id) => {
+    _getApiCredentials = () => {
         const {publicKey, privateKey} = MarvelService.keys;
-        const ts = Date.now();
+        const ts = Date.now().toString();
         const hash = this._getHash(privateKey, publicKey, ts);
-        const url = `${MarvelService.charactersUrl}/${id}?ts=${ts}&apikey=${publicKey}&hash=${hash}`;
-        return await this._getResource(url).then(this._characterTransform);
+        return {
+            publicKey, privateKey, ts, hash
+        };
+    };
 
+    getCharacter = async (id) => {
+        const credentials = this._getApiCredentials();
+        const url = `${MarvelService.charactersUrl}/${id}?ts=${credentials.ts}&apikey=${credentials.publicKey}&hash=${credentials.hash}`;
+        let res;
+        await this._getResource(url).then(item =>{
+           res = this._characterTransform(item.data.results[0]);
+        });
+        return res;
+
+    };
+
+    getCharacterDetails = async (id) => {
+        const credentials = this._getApiCredentials();
+        const url = `${MarvelService.charactersUrl}/${id}?ts=${credentials.ts}&apikey=${credentials.publicKey}&hash=${credentials.hash}`;
+        let res;
+        await this._getResource(url).then(item =>{
+            res = this._characterTransform(item.data.results[0]);
+            res.comics = item.data.results[0].comics.items.slice(0, 10);
+            res.comics = res.comics.map(item =>{
+                const id = item.resourceURI.split('/').pop();
+                return {...item, id};
+            });
+        });
+        return res;
     };
 
     getRandomCharacter = async (attempt = 5) => {
@@ -77,6 +102,31 @@ export default class MarvelService {
             }
         }
     };
+
+    getCharacters = async (offset = 210) => {
+        const credentials = this._getApiCredentials();
+        try {
+            const url = `${MarvelService.charactersUrl}?limit=9&offset=${offset}&ts=${credentials.ts}&apikey=${credentials.publicKey}&hash=${credentials.hash}`;
+            let res = [];
+            await this._getResource(url).then(item =>{
+                item.data.results.map((item) => {
+                    res.push(this._characterTransform(item));
+                });
+            });
+            return res;
+        } catch (error) {
+            if (error.statusCode === 429) {
+                throw new FetchError('Server could not responding', 500);
+            } else {
+                throw error;
+            }
+        }
+    };
 }
+
+
+
+
+
 
 

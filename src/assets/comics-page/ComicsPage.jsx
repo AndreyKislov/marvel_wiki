@@ -1,6 +1,6 @@
 import {Col, Container, Row} from 'react-bootstrap';
 import ComicsPreview from '../comics-preview/ComicsPreview.jsx';
-import {LoadMoreButton} from '../buttons/Button.jsx';
+import {StyledLoadMoreButton} from '../buttons/Button.jsx';
 import styled, {ThemeContext} from 'styled-components';
 import marvelImg from '../../img/default_marvel.jpg';
 import Title from '../titles/Title.jsx';
@@ -11,7 +11,7 @@ const ComicsSection = styled.section`
     margin-bottom: 50px;
 `;
 
-const StyledButton = styled(LoadMoreButton)`
+const StyledButton = styled(StyledLoadMoreButton)`
     margin: 0;
 `;
 

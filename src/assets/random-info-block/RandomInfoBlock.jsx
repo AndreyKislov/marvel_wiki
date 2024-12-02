@@ -39,46 +39,61 @@ const StatusHandler = styled(StyledInfoBlock)`
 `;
 
 // eslint-disable-next-line react/prop-types
-export default function RandomInfoBlock({character: {id, name, description, thumbnail, urls}, loading}) {
-    const theme = useTheme();
-
-    if (!id && !loading) {
-        return (
-            <StatusHandler>
-                <Title $color={theme.color.text.primary}>Please try again or come back later.</Title>
-            </StatusHandler>
-        );
-    }
+export default function RandomInfoBlock({character, loading, error}) {
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <LoadingMessage/> : null;
+    const content = !(loading || error) ? <View character={character}/> : null;
     return (
         <>
-        {loading ?
-                <StatusHandler>
-                    <Spinner/>
-                </StatusHandler>
-                :
-                <StyledInfoBlock>
-                    <img
-                        src={thumbnail || marvelImg || ''}
-                        alt="character image"
-                    />
-                    <div className='info-text'>
-                        <Title $color={theme.color.text.dark}>
-                            {name || 'No name available'}
-                        </Title>
-                        <Describe>
-                            {description || 'No description available'}
-                        </Describe>
-                        <div className='info-btns'>
-                            <Button $primary $width='100px' href={urls[0] || 'Link 1'}>
-                                detail
-                            </Button>
-                            <Button $width='100px' href={urls[1] || 'Link 2'}>
-                                wiki
-                            </Button>
-                        </div>
-                    </div>
-                </StyledInfoBlock>
-        }
+            {errorMessage}
+            {spinner}
+            {content}
         </>
+    );
+}
+
+// eslint-disable-next-line react/prop-types
+function View({character: {name, description, thumbnail, urls}}) {
+    const theme = useTheme();
+    return (
+        <StyledInfoBlock>
+            <img
+                src={thumbnail || marvelImg || ''}
+                alt="character image"
+            />
+            <div className='info-text'>
+                <Title $color={theme.color.text.dark}>
+                    {name || 'No name available'}
+                </Title>
+                <Describe>
+                    {description || 'No description available'}
+                </Describe>
+                <div className='info-btns'>
+                    <Button $primary $width='100px' href={urls[0] || 'Link 1'}>
+                        detail
+                    </Button>
+                    <Button $width='100px' href={urls[1] || 'Link 2'}>
+                        wiki
+                    </Button>
+                </div>
+            </div>
+        </StyledInfoBlock>
+    );
+}
+
+function ErrorMessage() {
+    const theme = useTheme();
+    return (
+        <StatusHandler>
+            <Title $color={theme.color.text.primary}>Please try again or come back later.</Title>
+        </StatusHandler>
+    );
+}
+
+function LoadingMessage() {
+    return (
+        <StatusHandler>
+            <Spinner/>
+        </StatusHandler>
     );
 }

@@ -1,7 +1,8 @@
-import {styled} from 'styled-components';
-import CharacterCard from '../character-card/CharacterCard.jsx';
+import {styled, useTheme} from 'styled-components';
+import Title from '../titles/Title.jsx';
+import Spinner from '../spinners/Spinner.jsx';
 
-const StyledContainer = styled.div`
+const StyledCardsContainer = styled.div`
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
@@ -9,28 +10,43 @@ const StyledContainer = styled.div`
     margin-bottom: 45px;
 `;
 
-export default function CardsContainer() {
+const StyledHandleContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+`;
+
+
+// eslint-disable-next-line react/prop-types
+export default function CardsContainer({cards, error, loading}) {
+
+
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <Spinner/> : null;
+    const content = <View cards = {cards}/>;
     return (
-        <StyledContainer>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-            <CharacterCard/>
-        </StyledContainer>
+        <>
+            {content}
+            <StyledHandleContainer>
+                {errorMessage}
+                {spinner}
+            </StyledHandleContainer>
+        </>
     );
-    
+}
+
+// eslint-disable-next-line react/prop-types
+function View({cards}) {
+    return (
+        <StyledCardsContainer>
+            {cards}
+        </StyledCardsContainer>
+    );
+}
+
+function ErrorMessage() {
+    const theme = useTheme();
+    return (
+        <Title $color={theme.color.text.primary}>Please try again or come back later.</Title>
+    );
 }

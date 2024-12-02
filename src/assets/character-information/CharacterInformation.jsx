@@ -4,6 +4,9 @@ import EmptyInformation from './EmptyInformation.jsx';
 import Button from '../buttons/Button.jsx';
 import Describe from '../describes/Describe.jsx';
 import defaultImg from './../../img/default_marvel.jpg';
+import {useEffect, useState} from 'react';
+import MarvelService from '../../services/MarvelService.js';
+import Spinner from '../spinners/Spinner.jsx';
 
 const StyledCharacterInformation = styled.div`
     padding: 25px;
@@ -21,30 +24,17 @@ const StyledCharacterInformation = styled.div`
     &:not(:hover) {
         top: -45%;
     }
-
-    .character-img {
-        width: 150px;
-    }
-
-    .btn-container {
-        display: flex;
-        flex-direction: column;
-        row-gap: 10px;
-    }
-
-    .information-header {
-        display: flex;
-        column-gap: 25px;
-        margin-bottom: 10px;
-    }
 `;
 
-const ComicsLink = styled(Title)`
+const ComicsLink = styled.a`
+    display: block;
     box-shadow: inset 1px 1px 3px 0 rgba(0, 0, 0, 0.35);
     text-decoration: none;
     width: 100%;
     cursor: pointer;
     padding: 3px 10px;
+    color: ${({theme }) =>theme.color.text.dark};
+    margin-bottom: 8px;
 `;
 
 const StyledDescribe = styled(Describe)`
@@ -54,61 +44,100 @@ const StyledDescribe = styled(Describe)`
     padding: 10px;
 `;
 
+const HandleContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
 
 // eslint-disable-next-line react/prop-types
-export default function CharacterInformation({data}) {
-    const theme = useTheme();
+export default function CharacterInformation({id= 0}) {
+    const marvelService = new MarvelService();
+    const [character, setCharacter] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
+
+
+    function updateCharacter(id){
+        if(id !== 0){
+            setLoading(true);
+            setError(false);
+            marvelService.getCharacterDetails(id)
+                .then(item =>{
+                    setCharacter(item);
+                    setLoading(false);
+                })
+                .catch(error =>{
+                    setError(true);
+                    setLoading(false);
+                    console.warn(error);
+                });
+        }
+    }
+
+    useEffect(() => {
+        updateCharacter(id);
+    },[id]);
+
+    const emptyId = !character && !loading && !error ? <EmptyInformation /> : null;
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <LoadingMessage/> : null;
+    const content = !loading && !error && character ? <View character={character}/> : null;
     return (
         <StyledCharacterInformation>
-            {!data ? (
-                <EmptyInformation/>
-            ) : (
-                <>
-                    <div className='information-header'>
-                        <img className='character-img' src={defaultImg} alt='character'/>
-                        <div className='btn-container'>
-                            <Title $margin='0 0 35px 0' $color={theme.color.text.dark}>Character</Title>
-                            <Button $primary $width='100px'>Homepage</Button>
-                            <Button $width='100px'>wiki</Button>
-                        </div>
-                    </div>
-                    <StyledDescribe>
-                        In Norse mythology, Loki is a god or jötunn (or both). Loki is the son of Fárbauti and Laufey,
-                        and the brother of Helblindi and Býleistr. By the jötunn Angrboða, Loki is the father of Hel,
-                        the wolf Fenrir, and the world serpent Jörmungandr. By Sigyn, Loki is the father of Nari and/or
-                        Narfi and with the stallion Svaðilfari as the father, Loki gave birth—in the form of a mare—to
-                        the eight-legged horse Sleipnir. In addition, Loki is referred to as the father of Váli in the
-                        Prose Edda.
-                        In Norse mythology, Loki is a god or jötunn (or both). Loki is the son of Fárbauti and Laufey,
-                        and the brother of Helblindi and Býleistr. By the jötunn Angrboða, Loki is the father of Hel,
-                        the wolf Fenrir, and the world serpent Jörmungandr. By Sigyn, Loki is the father of Nari and/or
-                        Narfi and with the stallion Svaðilfari as the father, Loki gave birth—in the form of a mare—to
-                        the eight-legged horse Sleipnir. In addition, Loki is referred to as the father of Váli in the
-                        Prose Edda.
-                    </StyledDescribe>
-                    <Title $margin='25px 0 10px 0' $size='18px' $color={theme.color.text.dark}>
-                        Comics:
-                    </Title>
-                    <ComicsLink as='a' href='#' $margin='0 0 15px 0' $color={theme.color.text.dark} $weight='500' $transform='none' $size='14px'>
-                        All-Winners Squad: Band of Heroes (2011) #3
-                    </ComicsLink>
-                    <ComicsLink as='a' href='#' $margin='0 0 15px 0' $color={theme.color.text.dark} $weight='500' $transform='none' $size='14px'>
-                        Alpha Flight (1983) #50
-                    </ComicsLink>
-                    <ComicsLink as='a' href='#' $margin='0 0 15px 0' $color={theme.color.text.dark} $weight='500' $transform='none' $size='14px'>
-                        Amazing Spider-Man (1999) #503
-                    </ComicsLink>
-                    <ComicsLink as='a' href='#' $margin='0 0 15px 0' $color={theme.color.text.dark} $weight='500' $transform='none' $size='14px'>
-                        Amazing Spider-Man (1999) #504
-                    </ComicsLink>
-                    <ComicsLink as='a' href='#' $margin='0 0 15px 0' $color={theme.color.text.dark} $weight='500' $transform='none' $size='14px'>
-                        AMAZING SPIDER-MAN VOL. 7: BOOK OF EZEKIEL TPB (Trade Paperback)
-                    </ComicsLink>
-                    <ComicsLink as='a' href='#' $margin='0 0 15px 0' $color={theme.color.text.dark} $weight='500' $transform='none' $size='14px'>
-                        Amazing-Spider-Man: Worldwide Vol. 8 (Trade Paperback)
-                    </ComicsLink>
-                </>
-            )}
+            {emptyId}
+            {errorMessage}
+            {spinner}
+            {content}
         </StyledCharacterInformation>
+    );
+}
+
+
+// eslint-disable-next-line react/prop-types
+function View({character: {name, thumbnail, description, urls, comics}}) {
+    const theme = useTheme();
+    // eslint-disable-next-line react/prop-types
+    const comicsLink = comics.map(item =>{
+       return <ComicsLink key={item.id} href={item.resourceURI || ''}>{item.name}</ComicsLink>;
+    });
+    return (
+        <>
+            <div className='information-header'>
+                <img className='character-img' src={thumbnail || defaultImg || ''} alt='character'/>
+                <div className='btn-container'>
+                    <Title $margin='0 0 35px 0' $color={theme.color.text.dark}>{name}</Title>
+                    <a href={urls[0]}>
+                        <Button $primary $width='100px'>Homepage</Button>
+                    </a>
+                    <a href={urls[1]}>
+                        <Button $width='100px'>wiki</Button>
+                    </a>
+                </div>
+            </div>
+            <StyledDescribe>{description || 'No description available'}</StyledDescribe>
+            <Title $margin='25px 0 10px 0' $size='18px' $color={theme.color.text.dark}>
+                Comics:
+            </Title>
+            {comicsLink}
+        </>
+    );
+}
+
+function LoadingMessage() {
+    return(
+        <HandleContainer>
+        <Spinner/>
+        </HandleContainer>
+    );
+}
+
+function ErrorMessage() {
+    const theme = useTheme();
+    return (
+        <HandleContainer>
+            <Title $color={theme.color.text.primary}>Please try again or come back later.</Title>
+        </HandleContainer>
     );
 }
