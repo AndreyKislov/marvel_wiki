@@ -6,9 +6,9 @@ import {StyledLoadMoreButton} from '../buttons/Button.jsx';
 import {styled} from 'styled-components';
 import bgImg from '../../img/bg.png';
 import Title from '../titles/Title.jsx';
-import {useEffect, useRef, useState} from 'react';
-import MarvelService from '../../services/MarvelService.js';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import CharacterCard from '../character-card/CharacterCard.jsx';
+import useMarvelService from '../../services/useMarvelService.js';
 
 const StyledCharactersSection = styled.section`
     margin-bottom: 45px;
@@ -20,55 +20,45 @@ styled(Title)`
 
 export default function CharactersListSection() {
     const [cards, setCards] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
     const [id, setId] = useState(0);
     const [offset, setOffset] = useState(210);
     const [btnVisible, setBtnVisible] = useState(true);
-    const marvelService = new MarvelService();
+
+    const {loading, error, getCharacters} = useMarvelService();
+
     const ref = useRef([]);
 
-
-    function updateCards() {
-        setLoading(true);
-        setError(false);
-        marvelService.getCharacters(offset).then(item => {
-            const len = ref.current.length;
-            const cardComponents = item.map((character, index) => {
-                return <CharacterCard ref={el => {
-                    if(len < 9){
-                        ref.current[index] = el;
-                    }else {
-                        ref.current[index + len] = el;
-                    }
-                }} onKeyDown={handleKeyDown} onClick={handleCard} key={character.id} character={character}/>;
-            });
-            if(cardComponents.length < 9){
-                setBtnVisible(false);
-            }
-            setCards([...cards, ...cardComponents]);
-            setLoading(false);
-            setOffset(offset + 9);
-        })
-            .catch(error => {
-                if (error.statusCode === 500) {
-                    setTimeout(() => setLoading(false), 10000);
-                }
-                setError(true);
-                setLoading(false);
-                console.warn(error.toString());
-            });
-    }
-
-    function handleCard(e, id) {
-        e.preventDefault();
+    const handleCard = useCallback((e, id) => {
         setId(id);
-    }
+    }, []);
 
-    function handleKeyDown(e, id) {
+    const handleKeyDown = useCallback((e, id) => {
         if (e.key === 'Enter') {
             handleCard(e, id);
         }
+    }, [handleCard]);
+
+    function updateCards() {
+        getCharacters(offset)
+            .then(item => {
+                const len = ref.current.length;
+                const cardComponents = item.map((character, index) => {
+                    return <CharacterCard ref={el => {
+                        if (len < 9) {
+                            ref.current[index] = el;
+                        } else {
+                            ref.current[index + len] = el;
+                        }
+                    }} onKeyDown={handleKeyDown} onClick={handleCard} key={character.id} character={character}/>;
+                });
+                if (cardComponents.length < 9) {
+                    setBtnVisible(false);
+                }
+                setCards(cards => [...cards, cardComponents]);
+                setOffset(offset => offset + 9);
+            })
+            .catch(error => {
+                console.warn(error.toString());            });
     }
 
     useEffect(() => {
@@ -106,11 +96,10 @@ export default function CharactersListSection() {
 
 // eslint-disable-next-line react/prop-types
 function LoadMoreButton({onClick, visible, primary, children}) {
-    if(!visible){
+    if (!visible) {
         return null;
     }
     return (
-        <StyledLoadMoreButton onClick={onClick} $primary = {primary}>{children}</StyledLoadMoreButton>
+        <StyledLoadMoreButton onClick={onClick} $primary={primary}>{children}</StyledLoadMoreButton>
     );
-
 }

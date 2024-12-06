@@ -1,6 +1,7 @@
-import {styled, useTheme} from 'styled-components';
-import Title from '../titles/Title.jsx';
+import {styled} from 'styled-components';
 import Spinner from '../spinners/Spinner.jsx';
+import {memo} from 'react';
+import ErrorMessage from '../errorMessage/ErrorMessage.jsx';
 
 const StyledCardsContainer = styled.div`
     display: grid;
@@ -18,9 +19,7 @@ const StyledHandleContainer = styled.div`
 
 
 // eslint-disable-next-line react/prop-types
-export default function CardsContainer({cards, error, loading}) {
-
-
+const CardsContainer = memo(({cards, error, loading}) =>{
     const errorMessage = error ? <ErrorMessage/> : null;
     const spinner = loading ? <Spinner/> : null;
     const content = <View cards = {cards}/>;
@@ -32,8 +31,14 @@ export default function CardsContainer({cards, error, loading}) {
                 {spinner}
             </StyledHandleContainer>
         </>
-    );
-}
+    ); 
+});
+CardsContainer.displayName = 'CardsContainer';
+
+
+
+export default CardsContainer;
+
 
 // eslint-disable-next-line react/prop-types
 function View({cards}) {
@@ -44,9 +49,4 @@ function View({cards}) {
     );
 }
 
-function ErrorMessage() {
-    const theme = useTheme();
-    return (
-        <Title $color={theme.color.text.primary}>Please try again or come back later.</Title>
-    );
-}
+

@@ -3,10 +3,11 @@ import {styled, useTheme} from 'styled-components';
 import EmptyInformation from './EmptyInformation.jsx';
 import Button from '../buttons/Button.jsx';
 import Describe from '../describes/Describe.jsx';
-import defaultImg from './../../img/default_marvel.jpg';
+import defaultImg from '../../img/default_marvel.jpg';
 import {useEffect, useState} from 'react';
-import MarvelService from '../../services/MarvelService.js';
 import Spinner from '../spinners/Spinner.jsx';
+import PropTypes from 'prop-types';
+import useMarvelService from '../../services/useMarvelService.js';
 
 const StyledCharacterInformation = styled.div`
     padding: 25px;
@@ -24,6 +25,22 @@ const StyledCharacterInformation = styled.div`
     &:not(:hover) {
         top: -45%;
     }
+
+    .character-img {
+        width: 200px;
+    }
+
+    .btn-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .information-header {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
 `;
 
 const ComicsLink = styled.a`
@@ -33,7 +50,7 @@ const ComicsLink = styled.a`
     width: 100%;
     cursor: pointer;
     padding: 3px 10px;
-    color: ${({theme }) =>theme.color.text.dark};
+    color: ${({theme}) => theme.color.text.dark};
     margin-bottom: 8px;
 `;
 
@@ -51,26 +68,18 @@ const HandleContainer = styled.div`
 `;
 
 
-// eslint-disable-next-line react/prop-types
-export default function CharacterInformation({id= 0}) {
-    const marvelService = new MarvelService();
+export default function CharacterInformation({id = 0}) {
     const [character, setCharacter] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const {loading, error, getCharacterDetails} = useMarvelService();
 
 
-    function updateCharacter(id){
-        if(id !== 0){
-            setLoading(true);
-            setError(false);
-            marvelService.getCharacterDetails(id)
-                .then(item =>{
+    function updateCharacter(id) {
+        if (id !== 0) {
+            getCharacterDetails(id)
+                .then(item => {
                     setCharacter(item);
-                    setLoading(false);
                 })
-                .catch(error =>{
-                    setError(true);
-                    setLoading(false);
+                .catch(error => {
                     console.warn(error);
                 });
         }
@@ -78,9 +87,9 @@ export default function CharacterInformation({id= 0}) {
 
     useEffect(() => {
         updateCharacter(id);
-    },[id]);
+    }, [id]);
 
-    const emptyId = !character && !loading && !error ? <EmptyInformation /> : null;
+    const emptyId = !character && !loading && !error ? <EmptyInformation/> : null;
     const errorMessage = error ? <ErrorMessage/> : null;
     const spinner = loading ? <LoadingMessage/> : null;
     const content = !loading && !error && character ? <View character={character}/> : null;
@@ -94,13 +103,17 @@ export default function CharacterInformation({id= 0}) {
     );
 }
 
+CharacterInformation.propTypes = {
+    id: PropTypes.number,
+};
+
 
 // eslint-disable-next-line react/prop-types
 function View({character: {name, thumbnail, description, urls, comics}}) {
     const theme = useTheme();
     // eslint-disable-next-line react/prop-types
-    const comicsLink = comics.map(item =>{
-       return <ComicsLink key={item.id} href={item.resourceURI || ''}>{item.name}</ComicsLink>;
+    const comicsLink = comics.map(item => {
+        return <ComicsLink key={item.id} href={item.resourceURI || ''}>{item.name}</ComicsLink>;
     });
     return (
         <>
@@ -126,9 +139,9 @@ function View({character: {name, thumbnail, description, urls, comics}}) {
 }
 
 function LoadingMessage() {
-    return(
+    return (
         <HandleContainer>
-        <Spinner/>
+            <Spinner/>
         </HandleContainer>
     );
 }

@@ -5,7 +5,7 @@ import Button from '../buttons/Button.jsx';
 import logo from '../../img/logo.png';
 import {styled} from 'styled-components';
 import {useEffect, useState} from 'react';
-import MarvelService from '../../services/MarvelService.js';
+import useMarvelService from '../../services/useMarvelService.js';
 
 
 const StyledRandomSection = styled.section`
@@ -39,45 +39,25 @@ export default function RandomCharacter() {
         thumbnail: '',
         urls: ['', ''],
     });
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
-    const marvelService = new MarvelService();
+    const {loading, error, getRandomCharacter} = useMarvelService();
 
-    function onChange(character) {
-        if (character && character.id &&
-            character.name &&
-            character.thumbnail && Array.isArray(character.urls) && character.urls[0].url && character.urls[1].url) {
-            setCharacter(character);
-            setLoading(false);
-        }
-    }
 
     function updateState() {
-        marvelService.getRandomCharacter()
+        getRandomCharacter()
             .then(response => {
-                onChange(response);
-            }).catch(error => {
-            if (error.statusCode === 500) {
-                setTimeout(() => setLoading(false), 10000);
-            }
-            setError(true);
-            setLoading(false);
-            console.warn(error.toString());
-        });
+                setCharacter(response);
+            })
+            .catch(error => {
+                console.warn(error.toString());
+            });
 
-    }
-
-    function handleClick() {
-        setError(false);
-        setLoading(true);
-        updateState();
     }
 
     useEffect(() => {
         updateState();
     }, []);
-    
-    return(
+
+    return (
         <StyledRandomSection>
             <Container>
                 <Row>
@@ -92,7 +72,7 @@ export default function RandomCharacter() {
                             <Title $transform='none'>
                                 Or choose another one
                             </Title>
-                            <Button $primary $width='100px' onClick={handleClick} disabled={loading}>
+                            <Button $primary $width='100px' onClick={updateState} disabled={loading}>
                                 {loading ? 'Wait' : 'Try it'}
                             </Button>
                             <img src={logo} alt='logo'/>
