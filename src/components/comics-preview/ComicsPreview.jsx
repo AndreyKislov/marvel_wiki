@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import logoFirst from '../../img/comics-preview-avengers.png';
 import logoSecond from '../../img/comics-preview-logo.png';
 import Title from '../titles/Title.jsx';
+import {Container} from 'react-bootstrap';
 
 
 const PreviewContainer = styled.div`
@@ -19,10 +20,12 @@ const PreviewContainer = styled.div`
 
 export default function ComicsPreview() {
     return (
+        <Container>
             <PreviewContainer>
                 <img src={logoFirst} alt="Comics Preview"/>
                 <Title $size='24px' $weight='500'>New comics every week! <br/>
                     Stay tuned!</Title>
             </PreviewContainer>
+        </Container>
     );
 }

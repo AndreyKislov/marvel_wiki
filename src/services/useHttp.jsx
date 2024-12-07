@@ -10,7 +10,10 @@ export default function useHttp (){
         onLoading();
         const response = await fetch(url);
         if (!response.ok) {
-            onError(response.statusText);
+            onError({
+                status: response.statusText,
+                code: response.status,
+            });
             throw new FetchError(`Could not fetch resource ${url}`, response.status);
         }
         const resource = await response.json();
@@ -18,8 +21,8 @@ export default function useHttp (){
         return resource;
     }), []);
 
-    const onError = useCallback((errorMessage) => {
-        setError(errorMessage);
+    const onError = useCallback((error) => {
+        setError(error);
         setLoading(false);
     }, []);
 

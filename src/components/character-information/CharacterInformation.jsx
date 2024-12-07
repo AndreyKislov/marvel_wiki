@@ -8,6 +8,7 @@ import {memo, useEffect, useState} from 'react';
 import Spinner from '../spinners/Spinner.jsx';
 import PropTypes from 'prop-types';
 import useMarvelService from '../../services/useMarvelService.js';
+import {Link} from 'react-router-dom';
 
 const StyledCharacterInformation = styled.div`
     padding: 25px;
@@ -43,7 +44,7 @@ const StyledCharacterInformation = styled.div`
     }
 `;
 
-const ComicsLink = styled.a`
+const ComicsLink = styled(Link)`
     display: block;
     box-shadow: inset 1px 1px 3px 0 rgba(0, 0, 0, 0.35);
     text-decoration: none;
@@ -110,9 +111,10 @@ CharacterInformation.propTypes = {
 // eslint-disable-next-line react/prop-types
 function View({character: {name, thumbnail, description, urls, comics}}) {
     const theme = useTheme();
+
     // eslint-disable-next-line react/prop-types
     const comicsLink = comics.map(item => {
-        return <ComicsLink key={item.id} href={item.resourceURI || ''}>{item.name}</ComicsLink>;
+        return <ComicsLink key={item.id} to={`/comics/${item.id}`}>{item.name}</ComicsLink>;
     });
     return (
         <>

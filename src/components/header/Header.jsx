@@ -56,19 +56,9 @@ export default function Header() {
                     <Col md={{span: 3, offset: 3}}>
                         <Nav>
                             <Ul>
-                                <li>
-                                    <StyledNavLink to="/">
-                                        Character
-                                    </StyledNavLink>
-                                </li>
-                                <li>
-                                    <Title $size='30px' $color={color.text.dark}>/</Title>
-                                </li>
-                                <li>
-                                    <StyledNavLink to="/comics">
-                                        Comics
-                                    </StyledNavLink>
-                                </li>
+                                <li><StyledNavLink end to="/">Character</StyledNavLink></li>
+                                <li><Title $size='30px' $color={color.text.dark}>/</Title></li>
+                                <li><StyledNavLink end to="/comics">Comics</StyledNavLink></li>
                             </Ul>
                         </Nav>
                     </Col>

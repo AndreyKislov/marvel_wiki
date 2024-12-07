@@ -36,6 +36,21 @@ export default function useMarvelService() {
         };
     };
 
+    const _comicTransformDetail = ({id, title, images, prices, description, pageCount, textObjects}) => {
+        return {
+            id: id,
+            title: title || 'No title available',
+            image: (images && images.length > 0) ? `${images[0].path}.${images[0].extension}` : '',
+            price: (prices && prices.length > 0) ? `$${prices[0].price}` : 'No price available',
+            description: description ||
+            (textObjects  && textObjects.length > 0)? textObjects[0]?.text.split('<br>')[0].trim()
+                : 'No description available',
+            pageCount: pageCount || 0,
+            language: (textObjects && textObjects.length > 0) ? textObjects[0].language : 'Unknown',
+        };
+    };
+
+
     const _getApiCredentials = () => {
         const {publicKey, privateKey} = keys;
         const ts = Date.now().toString();
@@ -48,10 +63,16 @@ export default function useMarvelService() {
     const _handleError = (error) => {
         if (error.statusCode === 429) {
             const errMess = 'Server could not respond.';
-            onError(errMess);
+            onError({
+                status: errMess,
+                code: 500,
+            });
             throw new FetchError(errMess, 500);
         } else {
-            onError(error.statusText || error.message);
+            onError({
+                status: 'Could not fetch resource',
+                code: error.statusCode,
+            });
             throw error;
         }
     };
@@ -91,7 +112,7 @@ export default function useMarvelService() {
             if (error.statusCode === 404) {
                 console.warn(`Character ${id} not found. Retrying...`);
                 return await getRandomCharacter(attempt - 1);
-            } else{
+            } else {
                 _handleError(error);
             }
         }
@@ -111,13 +132,24 @@ export default function useMarvelService() {
     const getComics = async (offset) => {
         const credentials = _getApiCredentials();
         const url = `${comicsUrl}?limit=8&offset=${offset}&ts=${credentials.ts}&apikey=${credentials.publicKey}&hash=${credentials.hash}`;
-        try{
+        try {
             const item = await fetchData(url);
             return item.data.results.map((result) => _comicTransform(result));
-        }catch(error){
+        } catch (error) {
             _handleError(error);
         }
     };
 
-    return {loading, error, getCharacter, getCharacterDetails, getRandomCharacter, getCharacters, getComics};
+    const getComic = async (id) => {
+        const credentials = _getApiCredentials();
+        const url = `${comicsUrl}/${id}?ts=${credentials.ts}&apikey=${credentials.publicKey}&hash=${credentials.hash}`;
+        try {
+            const item = await fetchData(url);
+            return _comicTransformDetail(item.data.results[0]);
+        } catch (error) {
+            _handleError(error);
+        }
+    };
+
+    return {loading, error, getCharacter, getCharacterDetails, getRandomCharacter, getCharacters, getComics, getComic};
 }

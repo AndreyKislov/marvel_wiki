@@ -4,24 +4,23 @@ import './style/main.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {ThemeProvider} from 'styled-components';
 import Header from './components/header/Header.jsx';
-import CharactersPage from './components/pages/CharactersPage.jsx';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
-import ComicsPage from './components/pages/ComicsPage.jsx';
+import {CharactersPage, ComicPage, ComicsPage, NotFoundPage} from './components/pages/index.js';
+
 
 
 export default function App() {
     return (
         <ThemeProvider theme={theme}>
-
-            {/*<CharactersPage/>*/}
-            {/*/!*<CharacterPage/>*!/*/}
-            {/*/!*<ComicsPage/>*!/*/}
-            {/*/!*<ComicPage/>*!/*/}
             <BrowserRouter>
                 <Header/>
                 <Routes>
                     <Route path={'/'} element={<CharactersPage/>}/>
                     <Route path={'/comics'} element={<ComicsPage/>}/>
+                    <Route path='/comics/:comicId' element={<ComicPage/>}/>
+
+                    <Route path={'*'} element={<NotFoundPage/>}/>
+                    <Route path={'/error/:code'} element={<NotFoundPage/>}/>
                 </Routes>
             </BrowserRouter>
 

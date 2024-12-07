@@ -8,6 +8,7 @@ import useMarvelService from '../../services/useMarvelService.js';
 import ErrorMessage from '../errorMessage/ErrorMessage.jsx';
 import Spinner from '../spinners/Spinner.jsx';
 import {StyledLoadMoreButton} from '../buttons/Buttons.jsx';
+import {Link} from 'react-router-dom';
 
 const ComicsSection = styled.section`
     margin-bottom: 50px;
@@ -17,12 +18,15 @@ const StyledButton = styled(StyledLoadMoreButton)`
     margin: 0;
 `;
 
-const StyledContainer = styled.div`
+const StyledContainer = styled.ul`
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(2, 1fr);
     gap: 30px 65px;
     margin-bottom: 45px;
+    li{
+        list-style: none;
+    }
 `;
 
 const Card = styled.div`
@@ -56,6 +60,17 @@ const StyledHandleContainer = styled.div`
     margin-bottom: 30px;
 `;
 
+const StyledTitle = styled(Title)`
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: ${({theme}) => theme.color.text.dark};
+`;
+
+const StyledLink = styled(Link)`
+    text-decoration: none;
+`;
+
 
 export default function ComicsPage() {
     const {color} = useContext(ThemeContext);
@@ -71,23 +86,27 @@ export default function ComicsPage() {
             .then(res => {
                 const len = ref.current.length;
                 const cardsComponents = res.map((card, index) => {
-                    return <Card key={card.id}
-                                 ref={el => {
-                                     if (len < 8) {
-                                         ref.current[index] = el;
-                                     } else {
-                                         ref.current[index + len] = el;
-                                     }
-                                 }}
-                                 tabIndex={0}>
-                        <img src={card.image || marvelImg || ''} alt='marvelImg'/>
-                        <Title $color={color.text.dark} $weight='500' $size='14px' $width='85%' $margin='0'>
-                            {card.title}
-                        </Title>
-                        <Title $color={color.text.dark} $weight='500' $size='14px' $opacity='60%'>
-                            {card.price}
-                        </Title>
-                    </Card>;
+                    return <li key={card.id}>
+                        <StyledLink end='true' to={`${card.id}`} key={card.id} >
+                            <Card key={card.id}
+                                ref={el => {
+                                      if (len < 8) {
+                                          ref.current[index] = el;
+                                      } else {
+                                          ref.current[index + len] = el;
+                                      }
+                                  }}
+                                  tabIndex={0}>
+                                <img src={card.image || marvelImg || ''} alt='marvelImg'/>
+                                <StyledTitle>
+                                    {card.title}
+                                </StyledTitle>
+                                <StyledTitle $opacity='60%'>
+                                    {card.price}
+                                </StyledTitle>
+                            </Card>
+                        </StyledLink>
+                    </li>;
                 });
                 setCards(cards => ([...cards, ...cardsComponents]));
                 setOffset(offset => offset + 8);

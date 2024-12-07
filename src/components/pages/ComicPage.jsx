@@ -4,8 +4,11 @@ import marvelImg from '../../img/default_marvel.jpg';
 import Title from '../titles/Title.jsx';
 import Describe from '../describes/Describe.jsx';
 import styled, {ThemeContext} from 'styled-components';
-import {useContext} from 'react';
-import Header from '../header/Header.jsx';
+import {useContext, useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import useMarvelService from '../../services/useMarvelService.js';
+import ErrorMessage from '../errorMessage/ErrorMessage.jsx';
+import Spinner from '../spinners/Spinner.jsx';
 
 const ComicContainer = styled.section`
     margin-bottom: 150px;
@@ -16,51 +19,81 @@ const ComicImage = styled.img`
     height: 450px;
 `;
 
-const ComicText = styled.div`
-
+const StyledHandleContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    margin-top: 130px
 `;
 
 export default function ComicPage() {
     const {color} = useContext(ThemeContext);
+    const {comicId} = useParams();
+    const {loading, error, getComic} = useMarvelService();
+    const [data, setData] = useState({});
+    const navigate = useNavigate();
+
+    const updateDate = (id) => {
+        getComic(id)
+            .then((data) => {
+                setData(data);
+            })
+            .catch((err) => {
+                console.warn(err);
+            });
+    };
+
+    useEffect(() => {
+        updateDate(comicId);
+    }, []);
+
+    if(error)
+        navigate(`/error/${error.code}`, {replace: true});
+
+
+    const spinner = loading ? <Spinner/> : null;
+    const content =  (!loading && !error) ? <View data={data}/> : null;
+
     return (
         <>
-            <Header/>
+            <ComicsPreview/>
+            <StyledHandleContainer>
+                {spinner}
+            </StyledHandleContainer>
+            {content}
+        </>
+    );
+
+    // eslint-disable-next-line react/prop-types
+    function View({data: {title, image, price, description, pageCount, language}}) {
+        return (
             <Container>
                 <ComicContainer>
                     <Row>
-                        <Col md={12}>
-                            <ComicsPreview/>
-                        </Col>
                         <Col md={4}>
-                            <ComicImage src={marvelImg} alt='marvel image'/>
+                            <ComicImage src={image || marvelImg || ''} alt='marvel image'/>
                         </Col>
                         <Col md={6}>
-                            <ComicText>
+                            <div>
                                 <Title $color={color.text.dark} $margin='0 0 30px 0'>
-                                    X-Men: Days of Future Past
+                                    {title}
                                 </Title>
                                 <Describe $size='18px' $margin='0 0 40px 0'>
-                                    Re-live the legendary first journey into the dystopian future of 2013 - where Sentinels
-                                    stalk the Earth, and the X-Men are humanity's only hope...until they die! Also featuring
-                                    the first appearance of Alpha Flight, the return of the Wendigo, the history of the
-                                    X-Men from Cyclops himself...and a demon for Christmas!?
+                                    {description || 'No description available'}
                                 </Describe>
                                 <Describe $size='18px' $margin='0 0 30px 0'>
-                                    144 pages
+                                    Pages: {pageCount}
                                 </Describe>
                                 <Describe $size='18px' $margin='0 0 30px 0'>
-                                    Language: en-us
+                                    Language: {language}
                                 </Describe>
-                            </ComicText>
+                            </div>
                             <Title $color={color.text.primary} $size='24px' $weight='700'>
-                                9.99$
+                                Price: {price}
                             </Title>
                         </Col>
                     </Row>
                 </ComicContainer>
-
             </Container>
-        </>
-
-    );
+        );
+    }
 }
