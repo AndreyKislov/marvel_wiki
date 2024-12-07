@@ -1,7 +1,7 @@
 import styled, {useTheme} from 'styled-components';
 import Title from '../titles/Title.jsx';
 import Describe from '../describes/Describe.jsx';
-import Button from '../buttons/Button.jsx';
+import Button from '../buttons/Buttons.jsx';
 import marvelImg from '../../img/default_marvel.jpg';
 import Spinner from '../spinners/Spinner.jsx';
 

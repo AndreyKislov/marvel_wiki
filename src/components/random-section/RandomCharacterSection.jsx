@@ -1,7 +1,7 @@
 import {Col, Container, Row} from 'react-bootstrap';
 import RandomInfoBlock from '../random-info-block/RandomInfoBlock.jsx';
 import Title from '../titles/Title.jsx';
-import Button from '../buttons/Button.jsx';
+import Button from '../buttons/Buttons.jsx';
 import logo from '../../img/logo.png';
 import {styled} from 'styled-components';
 import {useEffect, useState} from 'react';

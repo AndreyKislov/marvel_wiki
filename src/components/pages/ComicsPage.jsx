@@ -1,6 +1,5 @@
 import {Col, Container, Row} from 'react-bootstrap';
 import ComicsPreview from '../comics-preview/ComicsPreview.jsx';
-import {StyledLoadMoreButton} from '../buttons/Button.jsx';
 import styled, {ThemeContext} from 'styled-components';
 import marvelImg from '../../img/default_marvel.jpg';
 import Title from '../titles/Title.jsx';
@@ -8,6 +7,7 @@ import {useContext, useEffect, useRef, useState} from 'react';
 import useMarvelService from '../../services/useMarvelService.js';
 import ErrorMessage from '../errorMessage/ErrorMessage.jsx';
 import Spinner from '../spinners/Spinner.jsx';
+import {StyledLoadMoreButton} from '../buttons/Buttons.jsx';
 
 const ComicsSection = styled.section`
     margin-bottom: 50px;
@@ -124,7 +124,9 @@ export default function ComicsPage() {
                     </StyledHandleContainer>
                     <Row>
                         <Col md={{span: 2, offset: 5}}>
-                            <StyledButton onClick={updateCards} $primary>Load more</StyledButton>
+                            <StyledButton onClick={updateCards} $primary disabled={loading}>
+                                {loading ? 'Wait' : 'Load More'}
+                            </StyledButton>
                         </Col>
                     </Row>
                 </ComicsSection>

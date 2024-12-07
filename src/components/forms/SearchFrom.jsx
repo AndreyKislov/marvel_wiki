@@ -1,6 +1,6 @@
 import {styled, useTheme} from 'styled-components';
 import Title from '../titles/Title.jsx';
-import Button from '../buttons/Button.jsx';
+import Button from '../buttons/Buttons.jsx';
 
 const StyledSearchFrom = styled.div`
     padding: 25px;

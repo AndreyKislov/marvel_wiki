@@ -2,7 +2,7 @@ import {Col, Container, Row} from 'react-bootstrap';
 import CardsContainer from '../cards-container/CardsContainer.jsx';
 import CharacterInformation from '../character-information/CharacterInformation.jsx';
 import SearchFrom from '../forms/SearchFrom.jsx';
-import {StyledLoadMoreButton} from '../buttons/Button.jsx';
+import {StyledLoadMoreButton} from '../buttons/Buttons.jsx';
 import {styled} from 'styled-components';
 import bgImg from '../../img/bg.png';
 import Title from '../titles/Title.jsx';
@@ -38,7 +38,7 @@ export default function CharactersListSection() {
         }
     }, [handleCard]);
 
-    function updateCards() {
+    const updateCards = useCallback(()=>{
         getCharacters(offset)
             .then(item => {
                 const len = ref.current.length;
@@ -59,7 +59,9 @@ export default function CharactersListSection() {
             })
             .catch(error => {
                 console.warn(error.toString());            });
-    }
+
+    }, [cards]);
+
 
     useEffect(() => {
         updateCards();
@@ -86,20 +88,15 @@ export default function CharactersListSection() {
                 </Row>
                 <Row>
                     <Col md={{span: 2, offset: 2}}>
-                        <LoadMoreButton onClick={updateCards} visible={btnVisible} primary>Load more</LoadMoreButton>
+                        {/*<LoadMoreButton onClick={updateCards} visible={btnVisible} primary disabled={loading}>Load more</LoadMoreButton>*/}
+                        {btnVisible ?
+                            <StyledLoadMoreButton onClick={updateCards} $primary disabled={loading}>
+                                {loading ? 'Wait' : 'Load More'}
+                            </StyledLoadMoreButton> : null}
+
                     </Col>
                 </Row>
             </Container>
         </StyledCharactersSection>
-    );
-}
-
-// eslint-disable-next-line react/prop-types
-function LoadMoreButton({onClick, visible, primary, children}) {
-    if (!visible) {
-        return null;
-    }
-    return (
-        <StyledLoadMoreButton onClick={onClick} $primary={primary}>{children}</StyledLoadMoreButton>
     );
 }

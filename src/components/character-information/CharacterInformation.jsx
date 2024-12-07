@@ -1,10 +1,10 @@
 import Title from '../titles/Title.jsx';
 import {styled, useTheme} from 'styled-components';
 import EmptyInformation from './EmptyInformation.jsx';
-import Button from '../buttons/Button.jsx';
+import Button from '../buttons/Buttons.jsx';
 import Describe from '../describes/Describe.jsx';
 import defaultImg from '../../img/default_marvel.jpg';
-import {useEffect, useState} from 'react';
+import {memo, useEffect, useState} from 'react';
 import Spinner from '../spinners/Spinner.jsx';
 import PropTypes from 'prop-types';
 import useMarvelService from '../../services/useMarvelService.js';
@@ -68,7 +68,7 @@ const HandleContainer = styled.div`
 `;
 
 
-export default function CharacterInformation({id = 0}) {
+const CharacterInformation = ({id = 0}) =>{
     const [character, setCharacter] = useState(null);
     const {loading, error, getCharacterDetails} = useMarvelService();
 
@@ -101,8 +101,7 @@ export default function CharacterInformation({id = 0}) {
             {content}
         </StyledCharacterInformation>
     );
-}
-
+};
 CharacterInformation.propTypes = {
     id: PropTypes.number,
 };
@@ -154,3 +153,5 @@ function ErrorMessage() {
         </HandleContainer>
     );
 }
+
+export default memo(CharacterInformation);
