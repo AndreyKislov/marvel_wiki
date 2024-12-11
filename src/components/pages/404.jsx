@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import {Link, useParams} from 'react-router-dom';
+import Header from "../header/Header.jsx";
 
 const PageWrapper = styled.div`
     display: flex;
@@ -56,6 +57,7 @@ export default function NotFoundPage({defCode = 404}) {
     const {code} = useParams();
     return (
         <PageWrapper>
+            <Header />
             <ErrorTitle>{code || defCode}</ErrorTitle>
             <ErrorSubtitle>Page Not Found or Server Unavailable
 

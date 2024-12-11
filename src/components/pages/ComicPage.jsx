@@ -4,11 +4,12 @@ import marvelImg from '../../img/default_marvel.jpg';
 import Title from '../titles/Title.jsx';
 import Describe from '../describes/Describe.jsx';
 import styled, {ThemeContext} from 'styled-components';
-import {useContext, useEffect, useState} from 'react';
+import {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import useMarvelService from '../../services/useMarvelService.js';
-import ErrorMessage from '../errorMessage/ErrorMessage.jsx';
 import Spinner from '../spinners/Spinner.jsx';
+import {SwitchTransition, Transition} from "react-transition-group";
+import Header from "../header/Header.jsx";
 
 const ComicContainer = styled.section`
     margin-bottom: 150px;
@@ -32,6 +33,19 @@ export default function ComicPage() {
     const [data, setData] = useState({});
     const navigate = useNavigate();
 
+    const nodeRef = useRef(null);
+    const duration = 500;
+
+    const transitionStyles = {
+        entered: {opacity: 1},
+        entering: {opacity: 1},
+        exited: {opacity: 0},
+        exiting: {opacity: 0},
+    };
+    const defaultStyles = {
+        transition: `opacity ${duration}ms ease-in-out`,
+    };
+
     const updateDate = (id) => {
         getComic(id)
             .then((data) => {
@@ -46,20 +60,33 @@ export default function ComicPage() {
         updateDate(comicId);
     }, []);
 
-    if(error)
+    if (error)
         navigate(`/error/${error.code}`, {replace: true});
 
 
     const spinner = loading ? <Spinner/> : null;
-    const content =  (!loading && !error) ? <View data={data}/> : null;
+    const content = (!loading && !error) ? <View data={data}/> : null;
 
     return (
         <>
+            <Header/>
             <ComicsPreview/>
-            <StyledHandleContainer>
-                {spinner}
-            </StyledHandleContainer>
-            {content}
+            <SwitchTransition>
+                <Transition timeout={duration} in={true} key={loading} nodeRef={nodeRef}>
+                    {status => {
+                        return (
+                            <div style={{...defaultStyles, ...transitionStyles[status]}} ref={nodeRef}>
+                                {!loading ? content :
+                                    <StyledHandleContainer>
+                                        {spinner}
+                                    </StyledHandleContainer>
+                                }
+                            </div>
+                        );
+                    }}
+                </Transition>
+            </SwitchTransition>
+
         </>
     );
 

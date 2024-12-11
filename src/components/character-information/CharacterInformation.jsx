@@ -4,11 +4,12 @@ import EmptyInformation from './EmptyInformation.jsx';
 import Button from '../buttons/Buttons.jsx';
 import Describe from '../describes/Describe.jsx';
 import defaultImg from '../../img/default_marvel.jpg';
-import {memo, useEffect, useState} from 'react';
+import {memo, useEffect, useMemo, useRef, useState} from 'react';
 import Spinner from '../spinners/Spinner.jsx';
 import PropTypes from 'prop-types';
 import useMarvelService from '../../services/useMarvelService.js';
 import {Link} from 'react-router-dom';
+import {SwitchTransition, Transition} from 'react-transition-group';
 
 const StyledCharacterInformation = styled.div`
     padding: 25px;
@@ -18,6 +19,10 @@ const StyledCharacterInformation = styled.div`
     transition: top 1s ease;
     z-index: 10;
     background-color: ${({theme}) => theme.color.infoPanel.background};
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 
     &:hover {
         top: 3%;
@@ -72,6 +77,41 @@ const HandleContainer = styled.div`
 const CharacterInformation = ({id = 0}) =>{
     const [character, setCharacter] = useState(null);
     const {loading, error, getCharacterDetails} = useMarvelService();
+    const nodeRef = useRef(null);
+    const duration = 500;
+
+    const getContent = useMemo(() => {
+        let key;
+        let content;
+        if (loading) {
+            key = 'loading';
+            content = <LoadingMessage/>;
+        } else if (error) {
+            key = 'error';
+            content = <ErrorMessage/>;
+        } else if(character){
+            key = 'content';
+            content = <View character={character}/>;
+        }
+        else {
+            key = 'empty';
+            content = <EmptyInformation/>;
+        }
+        return {
+            key: key,
+            content: content,
+        };
+    }, [character, loading, error]);
+
+    const transitionStyles = {
+        entered: {opacity: 1},
+        entering: {opacity: 1},
+        exited: {opacity: 0},
+        exiting: {opacity: 0},
+    };
+    const defaultStyles = {
+        transition: `opacity ${duration}ms ease-in-out`,
+    };
 
 
     function updateCharacter(id) {
@@ -90,17 +130,20 @@ const CharacterInformation = ({id = 0}) =>{
         updateCharacter(id);
     }, [id]);
 
-    const emptyId = !character && !loading && !error ? <EmptyInformation/> : null;
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <LoadingMessage/> : null;
-    const content = !loading && !error && character ? <View character={character}/> : null;
+
     return (
-        <StyledCharacterInformation>
-            {emptyId}
-            {errorMessage}
-            {spinner}
-            {content}
-        </StyledCharacterInformation>
+        <SwitchTransition>
+            <Transition timeout={duration} key={getContent.key} nodeRef={nodeRef}>
+                {status => {
+                    return (
+                        <StyledCharacterInformation ref={nodeRef} style={{...defaultStyles, ...transitionStyles[status]}}>
+                            {getContent.content}
+                        </StyledCharacterInformation>
+                    );
+                }}
+            </Transition>
+        </SwitchTransition>
+
     );
 };
 CharacterInformation.propTypes = {

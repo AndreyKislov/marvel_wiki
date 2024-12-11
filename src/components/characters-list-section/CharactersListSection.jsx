@@ -14,9 +14,7 @@ const StyledCharactersSection = styled.section`
     margin-bottom: 45px;
     background: url(${bgImg}) no-repeat 100% 100%;
 `;
-styled(Title)`
-    margin-bottom: 55px;
-`;
+
 
 export default function CharactersListSection() {
     const [cards, setCards] = useState([]);
@@ -88,7 +86,6 @@ export default function CharactersListSection() {
                 </Row>
                 <Row>
                     <Col md={{span: 2, offset: 2}}>
-                        {/*<LoadMoreButton onClick={updateCards} visible={btnVisible} primary disabled={loading}>Load more</LoadMoreButton>*/}
                         {btnVisible ?
                             <StyledLoadMoreButton onClick={updateCards} $primary disabled={loading}>
                                 {loading ? 'Wait' : 'Load More'}

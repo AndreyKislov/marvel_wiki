@@ -4,13 +4,14 @@ import Describe from '../describes/Describe.jsx';
 import Button from '../buttons/Buttons.jsx';
 import marvelImg from '../../img/default_marvel.jpg';
 import Spinner from '../spinners/Spinner.jsx';
+import {useMemo, useRef} from 'react';
+import {SwitchTransition, Transition} from 'react-transition-group';
 
 
 const StyledInfoBlock = styled.div`
     display: flex;
     padding: 35px 40px;
     column-gap: 30px;
-    box-shadow: 0 4px 20px 1px rgba(0, 0, 0, 0.35);
     min-height: 250px;
 
     img {
@@ -30,25 +31,64 @@ const StyledInfoBlock = styled.div`
     }
 `;
 
+const Container = styled.div`
+    box-shadow: 0 4px 20px 1px rgba(0, 0, 0, 0.35);
+`;
+
 const StatusHandler = styled(StyledInfoBlock)`
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 20px 1px rgba(0, 0, 0, 0.35);
     min-height: 250px;
 `;
 
 // eslint-disable-next-line react/prop-types
 export default function RandomInfoBlock({character, loading, error}) {
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <LoadingMessage/> : null;
-    const content = !(loading || error) ? <View character={character}/> : null;
+    const nodeRef = useRef(null);
+    const duration = 500;
+
+    const getContent = useMemo(() => {
+        let key;
+        let content;
+        if (loading) {
+            key = 'loading';
+            content = <LoadingMessage/>;
+        } else if (error) {
+            key = 'error';
+            content = <ErrorMessage/>;
+        } else {
+            key = 'content';
+            content = <View character={character}/>;
+        }
+        return {
+            key: key,
+            content: content,
+        };
+    }, [character, loading, error]);
+    const transitionStyles = {
+        entered: {opacity: 1},
+        entering: {opacity: 1},
+        exited: {opacity: 0},
+        exiting: {opacity: 0},
+    };
+    const defaultStyles = {
+        transition: `opacity ${duration}ms ease-in-out`,
+    };
+
     return (
-        <>
-            {errorMessage}
-            {spinner}
-            {content}
-        </>
+        <Container>
+            <SwitchTransition mode="out-in">
+                <Transition timeout={duration} key={getContent.key} nodeRef={nodeRef}>
+                    {status => {
+                        return (
+                            <div style={{...defaultStyles, ...transitionStyles[status]}} ref={nodeRef}>
+                                {getContent.content}
+                            </div>
+                        );
+                    }}
+                </Transition>
+            </SwitchTransition>
+        </Container>
     );
 }
 

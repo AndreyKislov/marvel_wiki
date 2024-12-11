@@ -2,6 +2,7 @@ import {styled} from 'styled-components';
 import Spinner from '../spinners/Spinner.jsx';
 import {memo} from 'react';
 import ErrorMessage from '../errorMessage/ErrorMessage.jsx';
+import {TransitionGroup} from 'react-transition-group';
 
 const StyledCardsContainer = styled.div`
     display: grid;
@@ -24,13 +25,13 @@ const CardsContainer = memo(({cards, error, loading}) =>{
     const spinner = loading ? <Spinner/> : null;
     const content = <View cards = {cards}/>;
     return (
-        <>
+        <TransitionGroup>
             {content}
             <StyledHandleContainer>
                 {errorMessage}
                 {spinner}
             </StyledHandleContainer>
-        </>
+        </TransitionGroup>
     ); 
 });
 CardsContainer.displayName = 'CardsContainer';
@@ -43,9 +44,11 @@ export default CardsContainer;
 // eslint-disable-next-line react/prop-types
 function View({cards}) {
     return (
-        <StyledCardsContainer>
-            {cards}
-        </StyledCardsContainer>
+        <>
+            <StyledCardsContainer>
+                {cards}
+            </StyledCardsContainer>
+        </>
     );
 }
 
