@@ -34,6 +34,10 @@ export default function useHttp (){
     const onData = useCallback(()=>{
         setLoading(false);
     },[]);
+
+    const resetError = () => {
+        setError(null);
+    };
     
-    return {loading, onLoading, error, onError, fetchData};
+    return {loading, onLoading, error, onError, fetchData, resetError};
 }

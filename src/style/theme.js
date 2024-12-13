@@ -1,3 +1,4 @@
+
 const primary = '#9F0013';
 const theme = {
     color: {
@@ -9,6 +10,7 @@ const theme = {
             light: '#fff',
             dark: '#030303',
             primary: primary,
+            success: '#03710E',
         },
         card:{
             background: '#232222',

@@ -4,12 +4,12 @@ import marvelImg from '../../img/default_marvel.jpg';
 import Title from '../titles/Title.jsx';
 import Describe from '../describes/Describe.jsx';
 import styled, {ThemeContext} from 'styled-components';
-import {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {useContext, useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import useMarvelService from '../../services/useMarvelService.js';
 import Spinner from '../spinners/Spinner.jsx';
-import {SwitchTransition, Transition} from "react-transition-group";
-import Header from "../header/Header.jsx";
+import {SwitchTransition, Transition} from 'react-transition-group';
+import Header from '../header/Header.jsx';
 
 const ComicContainer = styled.section`
     margin-bottom: 150px;
@@ -18,6 +18,7 @@ const ComicContainer = styled.section`
 const ComicImage = styled.img`
     width: 300px;
     height: 450px;
+    margin-bottom: 80px;
 `;
 
 const StyledHandleContainer = styled.div`
@@ -26,12 +27,13 @@ const StyledHandleContainer = styled.div`
     margin-top: 130px
 `;
 
-export default function ComicPage() {
+export default function SingleUnitPage() {
     const {color} = useContext(ThemeContext);
-    const {comicId} = useParams();
-    const {loading, error, getComic} = useMarvelService();
+    const params = useParams();
+    const {loading, error, getComic, getCharacterDetail} = useMarvelService();
     const [data, setData] = useState({});
     const navigate = useNavigate();
+
 
     const nodeRef = useRef(null);
     const duration = 500;
@@ -46,8 +48,8 @@ export default function ComicPage() {
         transition: `opacity ${duration}ms ease-in-out`,
     };
 
-    const updateDate = (id) => {
-        getComic(id)
+    const updateDate = (id, fetchData) => {
+        fetchData(id)
             .then((data) => {
                 setData(data);
             })
@@ -57,7 +59,12 @@ export default function ComicPage() {
     };
 
     useEffect(() => {
-        updateDate(comicId);
+        if(params && params.comicId){
+            updateDate(params.comicId, getComic);
+        }else if (params && params.characterId){
+            updateDate(params.characterId, getCharacterDetail);
+        }
+
     }, []);
 
     if (error)
@@ -91,31 +98,31 @@ export default function ComicPage() {
     );
 
     // eslint-disable-next-line react/prop-types
-    function View({data: {title, image, price, description, pageCount, language}}) {
+    function View({data: {title, name, thumbnail, price, description, pageCount, language}}) {
         return (
             <Container>
                 <ComicContainer>
                     <Row>
                         <Col md={4}>
-                            <ComicImage src={image || marvelImg || ''} alt='marvel image'/>
+                            <ComicImage src={thumbnail || marvelImg || ''} alt='marvel image'/>
                         </Col>
                         <Col md={6}>
                             <div>
                                 <Title $color={color.text.dark} $margin='0 0 30px 0'>
-                                    {title}
+                                    {title || name}
                                 </Title>
                                 <Describe $size='18px' $margin='0 0 40px 0'>
                                     {description || 'No description available'}
                                 </Describe>
                                 <Describe $size='18px' $margin='0 0 30px 0'>
-                                    Pages: {pageCount}
+                                    {pageCount? `Page Count ${pageCount}` : null}
                                 </Describe>
                                 <Describe $size='18px' $margin='0 0 30px 0'>
-                                    Language: {language}
+                                    {language ? `Language ${language}` : null}
                                 </Describe>
                             </div>
                             <Title $color={color.text.primary} $size='24px' $weight='700'>
-                                Price: {price}
+                                {price? `Price ${price}` : null}
                             </Title>
                         </Col>
                     </Row>

@@ -3,10 +3,9 @@ import './style/bootstrap-reboot.min.css';
 import './style/main.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { styled, ThemeProvider } from 'styled-components';
-import Header from './components/header/Header.jsx';
-import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import {BrowserRouter, Navigate, Route, Routes, useLocation} from 'react-router-dom';
 import {TransitionGroup, Transition, SwitchTransition} from 'react-transition-group';
-import {CharactersPage, ComicPage, ComicsPage, NotFoundPage} from './components/pages/index.js';
+import {lazy, Suspense} from 'react';
 
 export default function App() {
     return (
@@ -19,10 +18,15 @@ export default function App() {
 }
 
 function AnimatedRoutes() {
+    const CharactersPage = lazy(() => import('./components/pages/CharactersPage'));
+    const SingleUnitPage = lazy(() => import('./components/pages/SingleUnitPage'));
+    const ComicsPage = lazy(() => import('./components/pages/ComicsPage'));
+    const ErrorPage = lazy(() => import('./components/pages/ErrorPage'));
+
+
     const location = useLocation();
     const duration = 500;
 
-    // Стили для анимации
     const defaultStyle = {
         transition: `opacity ${duration}ms `,
         opacity: 0,
@@ -46,13 +50,16 @@ function AnimatedRoutes() {
                                 ...transitionStyles[state],
                             }}
                         >
+                            <Suspense>
                             <Routes location={location}>
-                                <Route path="/" element={<CharactersPage />} />
-                                <Route path="/comics" element={<ComicsPage />} />
-                                <Route path="/comics/:comicId" element={<ComicPage />} />
-                                <Route path="*" element={<NotFoundPage />} />
-                                <Route path="/error/:code" element={<NotFoundPage />} />
+                                    <Route path="/characters" element={<CharactersPage />} />
+                                    <Route path="/characters/:characterId" element={<SingleUnitPage />}/>
+                                    <Route path="/comics" element={<ComicsPage />} />
+                                    <Route path="/comics/:comicId" element={<SingleUnitPage />} />
+                                    <Route path="*" element={<Navigate to={'/error/404'} replace/>}/>
+                                    <Route path="/error/:code" element={<ErrorPage />} />
                             </Routes>
+                        </Suspense>
                         </PageWrapper>
                     )}
                 </Transition>

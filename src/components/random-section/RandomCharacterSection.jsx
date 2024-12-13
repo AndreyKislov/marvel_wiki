@@ -31,7 +31,8 @@ const StyledTitle = styled(Title)`
 `;
 
 
-export default function RandomCharacter() {
+// eslint-disable-next-line react/prop-types
+export default function RandomCharacter({setCharacterName}) {
     const [character, setCharacter] = useState({
         id: '',
         name: '',
@@ -44,8 +45,9 @@ export default function RandomCharacter() {
 
     function updateState() {
         getRandomCharacter()
-            .then(response => {
-                setCharacter(response);
+            .then(character => {
+                setCharacter(character);
+                setCharacterName(character.name);
             })
             .catch(error => {
                 console.warn(error.toString());

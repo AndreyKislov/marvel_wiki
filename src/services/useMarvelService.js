@@ -4,7 +4,7 @@ import FetchError from './FetchError.js';
 import {cutString} from '../utils/utils.js';
 
 export default function useMarvelService() {
-    const {loading, error, onError, fetchData} = useHttp();
+    const {loading, error, onError, resetError,  fetchData} = useHttp();
 
     const keys = {
         publicKey: 'bab7b5e55def28b8bed5f962d700d0d4',
@@ -27,6 +27,16 @@ export default function useMarvelService() {
         };
     };
 
+    const _characterTransformDetail = ({id, name, description, thumbnail, urls}) => {
+        return {
+            id: id,
+            name: name,
+            description: description,
+            thumbnail: `${thumbnail.path}.${thumbnail.extension}`,
+            urls: [urls[0], urls[1]],
+        };
+    };
+
     const _comicTransform = ({id, title, images, prices}) => {
         return {
             id: id,
@@ -40,7 +50,7 @@ export default function useMarvelService() {
         return {
             id: id,
             title: title || 'No title available',
-            image: (images && images.length > 0) ? `${images[0].path}.${images[0].extension}` : '',
+            thumbnail: (images && images.length > 0) ? `${images[0].path}.${images[0].extension}` : '',
             price: (prices && prices.length > 0) ? `$${prices[0].price}` : 'No price available',
             description: description ||
             (textObjects  && textObjects.length > 0)? textObjects[0]?.text.split('<br>')[0].trim()
@@ -82,6 +92,26 @@ export default function useMarvelService() {
         const url = `${charactersUrl}/${id}?ts=${credentials.ts}&apikey=${credentials.publicKey}&hash=${credentials.hash}`;
         const item = await fetchData(url);
         return _characterTransform(item.data.results[0]);
+    };
+
+    const getCharacterDetail = async (id) => {
+        const credentials = _getApiCredentials();
+        const url = `${charactersUrl}/${id}?ts=${credentials.ts}&apikey=${credentials.publicKey}&hash=${credentials.hash}`;
+        const item = await fetchData(url);
+        return _characterTransformDetail(item.data.results[0]);
+    };
+
+    const getCharacterId = async (name) => {
+        const credentials = _getApiCredentials();
+        const url = `${charactersUrl}?name=${name}&limit=1&ts=${credentials.ts}&apikey=${credentials.publicKey}&hash=${credentials.hash}`;
+        try{
+            const item = await fetchData(url);
+            if(item.data.count === 0)
+                throw new FetchError(`Could not fetch character ${name}`, 404);
+            return item.data.results[0].id;
+        }catch(error){
+            _handleError(error);
+        }
     };
 
     const getCharacterDetails = async (id) => {
@@ -151,5 +181,6 @@ export default function useMarvelService() {
         }
     };
 
-    return {loading, error, getCharacter, getCharacterDetails, getRandomCharacter, getCharacters, getComics, getComic};
+    return {loading, error, getCharacterDetail: getCharacter, getCharacterDetails, getCharacterDetail,
+        getRandomCharacter, getCharacters, getComics, getComic, getCharacterId, resetError};
 }

@@ -16,7 +16,6 @@ const StyledCharacterInformation = styled.div`
     box-shadow: 0 4px 20px 1px rgba(0, 0, 0, 0.35);
     position: sticky;
     top: -45%;
-    transition: top 1s ease;
     z-index: 10;
     background-color: ${({theme}) => theme.color.infoPanel.background};
     min-height: 300px;
@@ -110,7 +109,7 @@ const CharacterInformation = ({id = 0}) =>{
         exiting: {opacity: 0},
     };
     const defaultStyles = {
-        transition: `opacity ${duration}ms ease-in-out`,
+        transition: `all ${duration}ms ease-in-out`,
     };
 
 

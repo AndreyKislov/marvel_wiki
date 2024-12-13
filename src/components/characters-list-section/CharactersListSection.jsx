@@ -16,7 +16,8 @@ const StyledCharactersSection = styled.section`
 `;
 
 
-export default function CharactersListSection() {
+// eslint-disable-next-line react/prop-types
+export default function CharactersListSection({characterName}) {
     const [cards, setCards] = useState([]);
     const [id, setId] = useState(0);
     const [offset, setOffset] = useState(210);
@@ -81,7 +82,7 @@ export default function CharactersListSection() {
                     </Col>
                     <Col md={5}>
                         <CharacterInformation id={id}/>
-                        <SearchFrom/>
+                        <SearchFrom characterName={characterName}/>
                     </Col>
                 </Row>
                 <Row>

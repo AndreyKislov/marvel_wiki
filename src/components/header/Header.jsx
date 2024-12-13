@@ -47,7 +47,7 @@ export default function Header() {
             <Container>
                 <Row>
                     <Col md={6}>
-                        <Link to={'/'}>
+                        <Link to={'/characters'}>
                             <Title $size='28px' $transform='none' $color={color.text.primary}>
                                 Marvel <span className='span-dark'>information portal</span>
                             </Title>
@@ -56,9 +56,9 @@ export default function Header() {
                     <Col md={{span: 3, offset: 3}}>
                         <Nav>
                             <Ul>
-                                <li><StyledNavLink end to="/">Character</StyledNavLink></li>
+                                <li><StyledNavLink to="/characters">Character</StyledNavLink></li>
                                 <li><Title $size='30px' $color={color.text.dark}>/</Title></li>
-                                <li><StyledNavLink end to="/comics">Comics</StyledNavLink></li>
+                                <li><StyledNavLink to="/comics">Comics</StyledNavLink></li>
                             </Ul>
                         </Nav>
                     </Col>

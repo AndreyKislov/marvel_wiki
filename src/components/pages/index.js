@@ -1,7 +1,6 @@
-import NotFoundPage from './404.jsx';
-import CharacterPage from './CharacterPage.jsx';
+import ErrorPage from './ErrorPage.jsx';
 import CharactersPage from './CharactersPage.jsx';
 import ComicsPage from './ComicsPage.jsx';
-import ComicPage from './ComicPage.jsx';
+import SingleUnitPage from './SingleUnitPage.jsx';
 
-export {NotFoundPage, CharacterPage, CharactersPage, ComicPage, ComicsPage};
+export {ErrorPage, CharactersPage, SingleUnitPage, ComicsPage};
