@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {useNavigate, useParams} from 'react-router-dom';
 import {Container} from 'react-bootstrap';
-
+import {Button} from './../buttons/Buttons.jsx';
 
 const PageWrapper = styled.div`
     display: flex;
